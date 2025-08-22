@@ -1,0 +1,52 @@
+.DS_Store
+
+.vscode/
+.vs/
+
+*.sublime-workspace
+
+*.[Cc]ache
+*.[Cc]ache/
+
+# - Windows
+*.sln
+builds/
+bin/
+*.exe
+*.obj
+*.pdb
+*.res
+desktop.ini
+Thumbs.db
+
+# - Linux/MacOS
+odin
+!odin/
+**/*.dSYM
+*.bin
+demo.bin
+libLLVM*.so*
+*.a
+
+# shared collection
+shared/
+
+# temp files
+* .ll
+*.bc
+*.ll
+
+examples/bug/
+build.sh
+!core/debug/
+
+# RAD debugger project file
+*.raddbg
+*.rdi
+tests/issues/build/*
+misc/featuregen/featuregen
+
+# Clangd stuff
+.cache/
+.clangd
+compile_commands.json
