@@ -3,7 +3,6 @@ package dinamp
 import "core:fmt"
 import "core:mem"
 import "core:strings"
-import "core:time"
 import "core:os"
 import "core:path/filepath"
 import "vendor:raylib"
@@ -51,14 +50,8 @@ main :: proc () {
                 path_cstr := dropped_files.paths[0]
                 path_str := strings.clone_from_cstring(path_cstr)
                 defer delete(path_str)
-                slash_idx := strings.last_index(path_str, "/")
-                if slash_idx == -1 {
-                    slash_idx = strings.last_index(path_str, "\\")
-                }
-                file_name = strings.clone(path_str[slash_idx + 1:])
-                file_name_allocated = true
 
-                // Load file data using Odin's os to handle paths
+                // Load file data
                 data, ok := os.read_entire_file(path_str)
                 if !ok {
                     new_file_name := strings.concatenate({"Failed to open: ", file_name})

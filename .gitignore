@@ -4,6 +4,7 @@
 .vs/
 
 *.sublime-workspace
+*.sublime-project
 
 *.[Cc]ache
 *.[Cc]ache/
