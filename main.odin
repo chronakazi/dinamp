@@ -39,39 +39,34 @@ main :: proc () {
     }
 
     play_next :: proc(using_queue: ^[dynamic]string, music: ^raylib.Music, loaded: ^bool, playing: ^bool, started: ^bool, seek_pos: ^f32, file_name: ^string, file_name_allocated: ^bool) {
-        if len(using_queue) == 0 do return
+        for len(using_queue) > 0 {
+            next_path := using_queue[0]
+            ordered_remove(using_queue, 0)
 
-        next_path := using_queue[0]
-        ordered_remove(using_queue, 0)
-
-        data, ok := os.read_entire_file(next_path)
-        if !ok {
-            delete(next_path)
-            play_next(using_queue, music, loaded, playing, started, seek_pos, file_name, file_name_allocated)
-            return
-        }
-        defer delete(data)
-
-        ext := filepath.ext(next_path)
-        ext_cstr := strings.clone_to_cstring(ext, context.temp_allocator)
-
-        music^ = raylib.LoadMusicStreamFromMemory(ext_cstr, raw_data(data), i32(len(data)))
-
-        if music.frameCount > 0 {
-            loaded^ = true
-            playing^ = false
-            started^ = false
-            seek_pos^ = 0.0
-            if file_name_allocated^ {
-                delete(file_name^)
+            ext := filepath.ext(next_path)
+            if ext != ".mp3" && ext != ".ogg" && ext != ".wav" {
+                delete(next_path)
+                continue
             }
-            file_name^ = strings.clone(filepath.base(next_path))
-            file_name_allocated^ = true
-        } else {
-            play_next(using_queue, music, loaded, playing, started, seek_pos, file_name, file_name_allocated)
-        }
 
-        delete(next_path)
+            music^ = raylib.LoadMusicStream(strings.clone_to_cstring(next_path))
+
+            if music.frameCount > 0 {
+                loaded^ = true
+                playing^ = false
+                started^ = false
+                seek_pos^ = 0.0
+                if file_name_allocated^ {
+                    delete(file_name^)
+                }
+                file_name^ = strings.clone(filepath.base(next_path))
+                file_name_allocated^ = true
+                delete(next_path)
+                break
+            } else {
+                delete(next_path)
+            }
+        }
     }
 
     for !raylib.WindowShouldClose() {

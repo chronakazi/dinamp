@@ -6,6 +6,8 @@
 *.sublime-workspace
 *.sublime-project
 
+opencode.json
+
 *.[Cc]ache
 *.[Cc]ache/
 
