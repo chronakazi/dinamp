@@ -39,13 +39,17 @@ main :: proc () {
     }
 
     play_next :: proc(using_queue: ^[dynamic]string, music: ^raylib.Music, loaded: ^bool, playing: ^bool, started: ^bool, seek_pos: ^f32, file_name: ^string, file_name_allocated: ^bool) {
-        for len(using_queue) > 0 {
+        max_attempts := 100
+        attempts := 0
+
+        for len(using_queue) > 0 && attempts < max_attempts {
             next_path := using_queue[0]
             ordered_remove(using_queue, 0)
 
             ext := filepath.ext(next_path)
             if ext != ".mp3" && ext != ".ogg" && ext != ".wav" {
                 delete(next_path)
+                attempts += 1
                 continue
             }
 
@@ -66,6 +70,14 @@ main :: proc () {
             } else {
                 delete(next_path)
             }
+            attempts += 1
+        }
+
+        if attempts >= max_attempts {
+            for path in using_queue {
+                delete(path)
+            }
+            clear(using_queue)
         }
     }
 
@@ -175,6 +187,26 @@ main :: proc () {
             time_text := strings.to_string(builder)
             time_cstr := strings.clone_to_cstring(time_text, context.temp_allocator)
             raylib.GuiLabel(raylib.Rectangle{10, 120, 380, 20}, time_cstr)
+
+            // Play Next button (if multiple tracks in queue)
+            if len(queue) >= 1 {
+                if raylib.GuiButton(raylib.Rectangle{10, 140, 100, 30}, "Play Next") {
+                    if loaded {
+                        raylib.StopMusicStream(music)
+                        raylib.UnloadMusicStream(music)
+                        if file_name_allocated {
+                            delete(file_name)
+                            file_name_allocated = false
+                        }
+                        file_name = "Drop music files here..."
+                        loaded = false
+                    }
+                    play_next(&queue, &music, &loaded, &playing, &started, &seek_pos, &file_name, &file_name_allocated)
+                    if loaded {
+                        playing = true
+                    }
+                }
+            }
         } else {
             drop_cstr := strings.clone_to_cstring("Drop MP3/OGG/WAV files to play", context.temp_allocator)
             raylib.GuiLabel(raylib.Rectangle{10, 50, 380, 20}, drop_cstr)
